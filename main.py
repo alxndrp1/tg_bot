@@ -3,6 +3,7 @@ from telebot import types
 import tg_analytic
 import re
 import argparse
+import pandas as pd
 
 parser = argparse.ArgumentParser()
 parser.add_argument("bot_token")
@@ -38,5 +39,16 @@ def send_text(message):
 		else:
 			messages = tg_analytic.analysis(st,message.chat.id)
 			bot.send_message(message.chat.id, messages)
+
+	if message.text[:8] == 'Dda_rekl':
+		str_msg = message.text[8:]
+		df = pd.read_csv('data.csv', delimiter=';', encoding='utf8')
+		for iuser in df['id'].unique():
+			bot.send_message(iuser, str_msg, parse_mode='html')
+
+	if message.text[:8] == 'Dda_test':
+		str_msg = message.text[8:]
+		bot.send_message(message.chat.id, str_msg, parse_mode='html')
+
 
 bot.polling(none_stop=True, interval=1)
