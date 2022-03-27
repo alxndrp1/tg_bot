@@ -73,4 +73,4 @@ def send_text(message):
 		except:
 			pass
 
-bot.polling(none_stop=True, interval=1)
+bot.polling()
