@@ -4,6 +4,7 @@ import tg_analytic
 import re
 import argparse
 import pandas as pd
+import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument("bot_token")
@@ -28,37 +29,43 @@ def send_text(message):
 			with open('%s.txt' %message.chat.id ,'r',encoding='UTF-8') as file:
 				bot.send_document(message.chat.id,file)
 			tg_analytic.remove(message.chat.id)
-			return
 		else:
 			messages = tg_analytic.analysis(st,message.chat.id)
 			bot.send_message(message.chat.id, messages)
-			return
+		return
 
 	if message.text[:8] == 'Dda_rekl':
 		str_msg = message.text[8:]
 		df = pd.read_csv('data.csv', delimiter=';', encoding='utf8')
+		num_iter = 0
 		for iuser in df['id'].unique():
 			try:
+				num_iter += 1
+				if num_iter == 29:
+					num_iter = 0
+					time.sleep(1.2)
 				bot.send_message(iuser, str_msg, parse_mode='html')
-				return
 			except:
-				return
+				num_iter += 1
+		return
 
 	if message.text[:8] == 'Dda_test':
 		str_msg = message.text[8:]
 		try:
 			bot.send_message(message.chat.id, str_msg, parse_mode='html')
-			return
 		except:
-			return
+			pass
+		return
 
 	if re.fullmatch(r'[7]\d{10}', message.text[:11]):
+
 		if message.text[12:16] == 'url':
 			try:
 				bot.send_message(message.chat.id, 'Открыть чат WhatsApp https://api.whatsapp.com/send?phone='+message.text[:11]+' (созданно в боте @whatsapp_chat_by_phone_bot)', parse_mode='html')
-				return
 			except:
-				return
+				pass
+			return
+
 		markup = types.InlineKeyboardMarkup()
 		btn_my_site = types.InlineKeyboardButton('Открыть чат WhatsApp', 'https://api.whatsapp.com/send?phone='+message.text[:11])
 		markup.add(btn_my_site)
