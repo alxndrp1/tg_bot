@@ -14,8 +14,7 @@ bot = telebot.TeleBot(args.bot_token)
 	
 @bot.message_handler(commands=['start'])
 def start_message(message):		
-    bot.send_message(message.chat.id, "<b>Отправьте номер телефона с которым хотите открыть чат в WhatsApp</b>", parse_mode='html')
-    bot.send_message(message.chat.id, "<i>Формат номера: 79XXXXXXXXX</i>", parse_mode='html')
+    bot.send_message(message.chat.id, "<b>Отправьте номер телефона с которым хотите открыть чат в WhatsApp или Telegram</b>", parse_mode='html')
     tg_analytic.statistics(message.chat.id, message.text)
 
 @bot.message_handler(content_types=['text'])
@@ -57,26 +56,24 @@ def send_text(message):
 			pass
 		return
 
-	if re.fullmatch(r'[7]\d{10}', message.text[:11]):
 
-		if message.text[12:16] == 'url':
-			try:
-				bot.send_message(message.chat.id, 'Открыть чат WhatsApp https://api.whatsapp.com/send?phone='+message.text[:11]+' (созданно в боте @whatsapp_chat_by_phone_bot)', parse_mode='html')
-			except:
-				pass
-			return
+	phone_number = re.sub(r"\D", "", message.text)
 
+	if len(phone_number) == 11:
+		if(phone_number[0] == '8'):
+			phone_number = '7' + phone_number[:0] + phone_number[1:]
 		markup = types.InlineKeyboardMarkup()
-		btn_my_site = types.InlineKeyboardButton('Открыть чат WhatsApp', 'https://api.whatsapp.com/send?phone='+message.text[:11])
+		btn_my_site = types.InlineKeyboardButton('Открыть чат WhatsApp', 'https://api.whatsapp.com/send?phone='+phone_number)
+		markup.add(btn_my_site)
+		btn_my_site = types.InlineKeyboardButton('Открыть чат Telegram', 'https://t.me/+'+phone_number)
 		markup.add(btn_my_site)
 		try:
-			bot.send_message(message.chat.id, "Нажмите на кнопку для открытия чата WhatsApp (созданно в боте @whatsapp_chat_by_phone_bot)", reply_markup = markup)
+			bot.send_message(message.chat.id, "Нажмите на кнопку для открытия чата (созданно в боте @whatsapp_chat_by_phone_bot)", reply_markup = markup)			
 		except:
 			pass
 	else:
 		try:
-			bot.send_message(message.chat.id, "<b>Номер не соответствует необходимому формату. Введите ещё раз!</b>", parse_mode='html')
-			bot.send_message(message.chat.id, "<i>Формат номера: 79XXXXXXXXX</i>", parse_mode='html')
+			bot.send_message(message.chat.id, "<b>Номер не верный. Введите ещё раз!</b><i> Пример формата номера: 79XXXXXXXXX</i>", parse_mode='html')
 		except:
 			pass
 
